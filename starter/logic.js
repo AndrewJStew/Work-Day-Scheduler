@@ -28,12 +28,13 @@ let getTimes = function () {
     let findTimes = JSON.parse(localStorage.getItem("times"));
     if (findTimes) {
         times = findTimes
-    }
 
-    $.each(times, function (hour, times) {
-        let hours = $("#" + hour);
-        createTime(times, hours);
-    })
+        $.each(times, function (hour, times) {
+            let hours = $("#" + hour);
+            createTime(times, hours);
+        })
+    }
+    updateTask()
 }
 
 //To be used to create input in a row that matches the hour
@@ -48,7 +49,7 @@ let createTime = function (timeText, hours) {
 //This function will update the background as the day progresses
 let updateTask = function () {
     let currentHour = moment().hour();
-    $(".task-info").each(function () {
+    $(".tInfo").each(function () {
         let hourEl = parseInt($(this).attr("id"));
 
         if (hourEl < currentHour) {
@@ -64,15 +65,36 @@ let updateTask = function () {
 };
 
 let changeTextArea = function (textAreaEl) {
-    let taskInfo = textAreaEl.closest(".task-info");
+    let taskInfo = textAreaEl.closest(".tInfo");
     let textArea = taskInfo.find("textarea");
 
-    let chrono = taskInfo.attr("id");
+    var chrono = taskInfo.attr("id");
     let text = textArea.val().trim();
 
     tasks[chrono] = [text]
     setTimes();
+    createTime(text, taskInfo);
 }
 
-createTime(text, taskInfo);
+//click buttons
+$(".task").click(function () {
+
+    //save tasks
+    $("textarea").each(function () {
+        changeTextArea($(this));
+    })
+
+    //change to textarea element based on time
+    let chrono = $(this).closest(".tInfo").attr("id");
+    if (parseInt(chrono) >= moment().hour()) {
+
+        let text = $(this).text();
+        let textInput = $("<textarea>")
+            .addClass("form-control")
+            .val(text);
+
+        $(this).html(textInput);
+        textInput.trigger("focus");
+    }
+})
 getTimes();
